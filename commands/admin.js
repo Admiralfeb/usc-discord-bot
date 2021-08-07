@@ -170,9 +170,12 @@ module.exports = {
           break;
       }
     } else if (interaction.options._subcommand === 'setup_member') {
-      const user = interaction.options.getUser('user');
+      const user = interaction.options.getMember('user');
       const nickname = interaction.options.getString('name');
       const platform = interaction.options.getString('platform');
+
+      await user.setNickname(`CMDR ${nickname}`, 'Cmdr Setup');
+
       console.log({ user, nickname, platform });
     } else {
       await interaction.editReply({
