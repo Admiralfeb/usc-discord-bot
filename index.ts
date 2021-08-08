@@ -5,7 +5,12 @@ import { BotClient } from './models/botClient';
 import { BotCommand } from './models/botCommand';
 
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+  ],
+  partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'],
 });
 const commands = new Collection<string, BotCommand>();
 
