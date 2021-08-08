@@ -7,9 +7,87 @@ import {
 import RankData from '../data/ranks';
 import { BotCommand } from '../models/botCommand';
 
+const INFORMATION_SENT = 'Information sent to user.';
+
 const name = 'edu';
 const description = "Bot's educational functions";
 const options: ApplicationCommandOption[] = [
+  {
+    name: 'combat-logging',
+    description: 'What is combat logging?',
+    type: 'SUB_COMMAND',
+    options: [
+      {
+        name: 'user',
+        description: 'discord user to send to',
+        type: 'USER',
+        required: false,
+      },
+    ],
+  },
+  {
+    name: 'engineers-fox',
+    description: "Fox's Guide to unlock engineers",
+    type: 'SUB_COMMAND',
+    options: [
+      {
+        name: 'user',
+        description: 'discord user to send to',
+        type: 'USER',
+        required: false,
+      },
+    ],
+  },
+  {
+    name: 'engineers-inara',
+    description: 'Engineer List on Inara',
+    type: 'SUB_COMMAND',
+    options: [
+      {
+        name: 'user',
+        description: 'discord user to send to',
+        type: 'USER',
+        required: false,
+      },
+    ],
+  },
+  {
+    name: 'fsd-booster',
+    description:
+      "Link to Exegious' video on how to unlock the Guardian FSD Booster",
+    type: 'SUB_COMMAND',
+    options: [
+      {
+        name: 'user',
+        description: 'discord user to send to',
+        type: 'USER',
+        required: false,
+      },
+    ],
+  },
+  {
+    name: 'neutron',
+    description: 'How to use Neutron Highway',
+    type: 'SUB_COMMAND',
+    options: [
+      {
+        name: 'option',
+        description: "Choose what you'd like to know about the Neutron Highway",
+        type: 'STRING',
+        required: true,
+        choices: [
+          { value: 'img', name: 'Image Tutorial' },
+          { value: 'spansh', name: "Spansh's Website" },
+        ],
+      },
+      {
+        name: 'user',
+        description: 'discord user to send to',
+        type: 'USER',
+        required: false,
+      },
+    ],
+  },
   {
     name: 'promotions',
     description: 'How do I get promoted?',
@@ -17,7 +95,7 @@ const options: ApplicationCommandOption[] = [
     options: [
       {
         name: 'user',
-        description: 'discord user to change',
+        description: 'discord user to send to',
         type: 'USER',
         required: false,
       },
@@ -52,17 +130,64 @@ const options: ApplicationCommandOption[] = [
       },
     ],
   },
+  {
+    name: 'scoopable',
+    description: 'What stars can I scoop?',
+    type: 'SUB_COMMAND',
+    options: [
+      {
+        name: 'user',
+        description: 'discord user to send to',
+        type: 'USER',
+        required: false,
+      },
+    ],
+  },
+  {
+    name: 'websites',
+    description: 'gives a list of 3rd party websites',
+    type: 'SUB_COMMAND',
+    options: [
+      {
+        name: 'user',
+        description: 'discord user to send to',
+        type: 'USER',
+        required: false,
+      },
+    ],
+  },
 ];
 
 const execute = async (interaction: CommandInteraction): Promise<void> => {
   console.log(interaction.options);
 
   switch (interaction.options.getSubcommand()) {
+    case 'combat-logging':
+      await combatLogging(interaction);
+      break;
+    case 'engineers-fox':
+      await engineersFox(interaction);
+      break;
+    case 'engineers-inara':
+      await engineersInara(interaction);
+      break;
+    case 'fsd-booster':
+      await fsdBooster(interaction);
+      break;
+    case 'neutron':
+      await neutron(interaction);
+      break;
     case 'promotions':
       await promotions(interaction);
       break;
     case 'ranks':
       await ranks(interaction);
+      break;
+    case 'scoopable':
+      await scoopable(interaction);
+      break;
+    case 'websites':
+      await websites(interaction);
       break;
     default:
       await interaction.editReply({
@@ -74,6 +199,96 @@ const execute = async (interaction: CommandInteraction): Promise<void> => {
 
 export const command: BotCommand = { name, description, options, execute };
 export default command;
+
+const combatLogging = async (
+  interaction: CommandInteraction
+): Promise<void> => {
+  const description =
+    'Combat Logging is improperly exiting gameplay (via menu, alt+F4, pulling a plug, etc) while in combat.\n\n' +
+    'FDev is very strict on this and it can result in a ban.\n\n' +
+    "While FDev does not consider logging to menu as 'Combat Logging', the Elite: Dangerous community does.\n\n" +
+    'Combat Logging is against the rules of USC and can result in a kick or ban.';
+  const embed = new MessageEmbed()
+    .setTitle('What is Combat Logging?')
+    .setDescription(description);
+
+  const user = interaction.options.getUser('user');
+  if (user) {
+    user.send({ embeds: [embed] });
+    interaction.reply({ content: INFORMATION_SENT, ephemeral: true });
+  } else await interaction.reply({ embeds: [embed] });
+};
+
+const engineersFox = async (interaction: CommandInteraction): Promise<void> => {
+  const message =
+    "Find Fox's Guide to unlocking engineers: https://www.reddit.com/r/EliteDangerous/comments/merpky/foxs_comprehensive_guide_to_engineer_unlocking/";
+
+  const user = interaction.options.getUser('user');
+  if (user) {
+    await user.send(message);
+    await interaction.reply({
+      content: INFORMATION_SENT,
+      ephemeral: true,
+    });
+  } else await interaction.reply(message);
+};
+
+const engineersInara = async (
+  interaction: CommandInteraction
+): Promise<void> => {
+  const message =
+    'Find where and what each engineer does at: https://inara.cz/galaxy-engineers/';
+
+  const user = interaction.options.getUser('user');
+  if (user) {
+    await user.send(message);
+    await interaction.reply({
+      content: INFORMATION_SENT,
+      ephemeral: true,
+    });
+  } else await interaction.reply(message);
+};
+
+const fsdBooster = async (interaction: CommandInteraction): Promise<void> => {
+  const message =
+    "Here's how to unlock the guardian fsd booster: https://youtu.be/J9C9a00-rkQ";
+
+  const user = interaction.options.getUser('user');
+  if (user) {
+    await user.send(message);
+    await interaction.reply({
+      content: INFORMATION_SENT,
+      ephemeral: true,
+    });
+  } else await interaction.reply(message);
+};
+
+const neutron = async (interaction: CommandInteraction): Promise<void> => {
+  const option = interaction.options.getString('option', true);
+
+  let message = '';
+  switch (option) {
+    case 'img':
+      message = 'https://i.imgur.com/gg6n5VM.jpg';
+      break;
+    case 'spansh':
+      message =
+        'Plot neutron highway routes online here: https://www.spansh.co.uk/plotter';
+      break;
+    default:
+      interaction.reply({
+        content: `The ${option} does not exist.`,
+        ephemeral: true,
+      });
+      return;
+  }
+
+  const user = interaction.options.getUser('user');
+  if (user) {
+    await user.send(message);
+    await interaction.reply({ content: INFORMATION_SENT, ephemeral: true });
+  } else await interaction.reply(message);
+};
 
 const promotions = async (interaction: CommandInteraction): Promise<void> => {
   const promotionEmbed = new MessageEmbed()
@@ -104,7 +319,7 @@ const promotions = async (interaction: CommandInteraction): Promise<void> => {
   if (promotionUser) {
     await promotionUser.send({ embeds: [promotionEmbed] });
     await interaction.reply({
-      content: 'Info sent to user',
+      content: INFORMATION_SENT,
       ephemeral: true,
     });
   } else {
@@ -135,10 +350,38 @@ const ranks = async (interaction: CommandInteraction): Promise<void> => {
   if (rankUser) {
     await rankUser.send({ embeds: [rankEmbed] });
     await interaction.reply({
-      content: 'Info sent to user',
+      content: INFORMATION_SENT,
       ephemeral: true,
     });
   } else {
     await interaction.reply({ embeds: [rankEmbed] });
   }
+};
+
+const scoopable = async (interaction: CommandInteraction): Promise<void> => {
+  const message =
+    'Learn to filter the galaxy map for scoopable stars at: https://confluence.fuelrats.com/pages/releaseview.action?pageId=1507609\n\nOther languages available at: https://confluence.fuelrats.com/display/public/FRKB/KGBFOAM';
+
+  const user = interaction.options.getUser('user');
+  if (user) {
+    await user.send(message);
+    await interaction.reply({
+      content: INFORMATION_SENT,
+      ephemeral: true,
+    });
+  } else await interaction.reply(message);
+};
+
+const websites = async (interaction: CommandInteraction): Promise<void> => {
+  const message =
+    'Find mostly anything related to trading, combat and player stats at: https://inara.cz\nFind accurate trading data at: https://eddb.io\nFind accurate exploration data at: https://edsm.net\nBuild ships virtually and test their stats at: https://coriolis.io and https://edsy.org\nFind mining hotspots and sell locations at: https://edtools.cc/miner\nNeutron highway and road to riches at: https://spansh.co.uk\nUseful material finding, fleet carrier calculators, and more at: https://cmdrs-toolbox.com/\nNeed fuel? https://fuelrats.com';
+
+  const user = interaction.options.getUser('user');
+  if (user) {
+    await user.send(message);
+    await interaction.reply({
+      content: INFORMATION_SENT,
+      ephemeral: true,
+    });
+  } else await interaction.reply(message);
 };
