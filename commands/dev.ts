@@ -5,6 +5,7 @@ import {
   MessageActionRow,
   MessageButton,
 } from 'discord.js';
+import { ownerId } from '../config';
 import { BotCommand } from '../models/botCommand';
 
 const name = 'dev';
@@ -27,6 +28,11 @@ const options: ApplicationCommandOption[] = [
       },
     ],
   },
+  {
+    name: 'shutdown',
+    description: 'shuts down the bot. Only Admiralfeb can perform this.',
+    type: 'SUB_COMMAND',
+  },
 ];
 const execute = async (interaction: CommandInteraction): Promise<void> => {
   switch (interaction.options.getSubcommand()) {
@@ -35,6 +41,16 @@ const execute = async (interaction: CommandInteraction): Promise<void> => {
       break;
     case 'website':
       await interaction.reply(buildWebsiteResponse());
+      break;
+    case 'shutdown':
+      if (interaction.user.id === ownerId) {
+        await interaction.reply({ content: 'Bot will shutdown in a moment.' });
+        interaction.client.destroy();
+      } else
+        interaction.reply({
+          content: 'you are not the owner.',
+          ephemeral: true,
+        });
       break;
     default:
       break;
