@@ -1,7 +1,7 @@
-const { mongo_conn } = require('../config.json');
-const { MongoClient } = require('mongodb');
+import { mongo_conn } from '../config';
+import { MongoClient } from 'mongodb';
 
-const getValue = async (key) => {
+export const getValue = async (key: string): Promise<unknown> => {
   const client = new MongoClient(mongo_conn);
   try {
     await client.connect();
@@ -20,7 +20,7 @@ const getValue = async (key) => {
   }
 };
 
-const setValue = async (key, value) => {
+export const setValue = async (key: string, value: unknown): Promise<void> => {
   const client = new MongoClient(mongo_conn);
   try {
     await client.connect();
@@ -35,9 +35,4 @@ const setValue = async (key, value) => {
   } finally {
     await client.close();
   }
-};
-
-module.exports = {
-  getValue,
-  setValue,
 };
