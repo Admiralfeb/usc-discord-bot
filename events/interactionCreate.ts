@@ -31,5 +31,5 @@ const execute = async (
   }
 };
 
-export const event = { name, execute };
+export const event = { name, once: false, execute };
 export default event;

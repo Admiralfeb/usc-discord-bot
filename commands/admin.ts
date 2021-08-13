@@ -205,9 +205,9 @@ const listAuthUsers = async (
 };
 
 const setupMember = async (interaction: CommandInteraction): Promise<void> => {
-  const user = interaction.options.getMember('user') as GuildMember;
-  const nickname = interaction.options.getString('name');
-  const platform = interaction.options.getString('platform');
+  const user = interaction.options.getMember('user', true) as GuildMember;
+  const nickname = interaction.options.getString('name', true);
+  const platform = interaction.options.getString('platform', true);
 
   await user.setNickname(`CMDR ${nickname}`, 'Cmdr Setup');
 
