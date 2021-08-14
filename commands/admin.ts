@@ -105,6 +105,8 @@ export const command: IBotCommand = {
       ],
     },
   ],
+  defaultPermission: false,
+  permissions: [{ id: '708389814453665852', type: 'ROLE', permission: true }],
   execute: async (interaction) => {
     console.log(interaction.options);
     const userId = interaction.user.id;
@@ -235,8 +237,27 @@ const listAuthUsers = async (
 const finalizeMember = async (
   interaction: CommandInteraction
 ): Promise<void> => {
-  const user = interaction.options.getMember('user', true) as GuildMember;
-  console.log({ user });
+  try {
+    const user = interaction.options.getMember('user', true) as GuildMember;
+    console.log({ user });
+
+    const roles = interaction.guild?.roles.cache;
+    if (roles) {
+      const disassociateRole = roles.find(
+        (role) => role.name === 'Dissociate Member'
+      );
+      const newRole = roles.find((role) => role.name === 'New Member');
+
+      if (disassociateRole)
+        await user.roles.remove(disassociateRole, 'finalize member');
+      if (newRole) await user.roles.remove(newRole, 'finalize member');
+    }
+  } catch (e) {
+    await interaction.reply({
+      content: 'There was an issue finalizing the member.',
+      ephemeral: true,
+    });
+  }
 };
 
 const setupMember = async (interaction: CommandInteraction): Promise<void> => {

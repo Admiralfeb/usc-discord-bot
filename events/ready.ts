@@ -9,11 +9,18 @@ export const event: IBotEvent = {
   once: true,
   needsClient: true,
   execute: async (client: Client, bot: IBotClient) => {
-    console.log(`Ready! Logged in as ${client.user?.tag}`);
-
-    await client.guilds.cache
+    const commands = await client.guilds.cache
       .get(guildId)
       ?.commands.set(getCommandData(bot.commands));
+
+    for (const cmd of bot.commands) {
+      const permissionsToSet = cmd[1].permissions;
+      if (permissionsToSet) {
+        const setCmd = commands?.find((x) => x.name === cmd[1].name);
+        await setCmd?.permissions.set({ permissions: permissionsToSet });
+      }
+    }
+    console.log(`Ready! Logged in as ${client.user?.tag}`);
   },
 };
 export default event;

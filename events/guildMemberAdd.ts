@@ -25,8 +25,9 @@ export const event: IBotEvent = {
     );
     const newRole = roles.find((role) => role.name === 'New Member');
 
-    if (disassociateRole) member.roles.add(disassociateRole, 'auto-setup');
-    if (newRole) member.roles.add(newRole, 'auto-setup');
+    if (disassociateRole)
+      await member.roles.add(disassociateRole, 'auto-setup');
+    if (newRole) await member.roles.add(newRole, 'auto-setup');
 
     if (joinRequest) {
       await setupMember(member, joinRequest, joiningChannel);
