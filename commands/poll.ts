@@ -1,123 +1,121 @@
 import {
-  ApplicationCommandOption,
   CommandInteraction,
   Message,
   MessageEmbed,
   TextChannel,
 } from 'discord.js';
-import { BotCommand } from '../models/botCommand';
+import { IBotCommand } from '../models/botCommand';
 
-const name = 'poll';
-const description = 'handles polls';
-const options: ApplicationCommandOption[] = [
-  {
-    name: 'create',
-    description: 'Create a poll',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'question',
-        description: 'What is the question?',
-        type: 'STRING',
-        required: true,
-      },
-      {
-        name: 'choice1',
-        description: 'choice 1',
-        type: 'STRING',
-        required: true,
-      },
-      {
-        name: 'choice2',
-        description: 'choice 2',
-        type: 'STRING',
-        required: true,
-      },
-      {
-        name: 'choice3',
-        description: 'choice 3',
-        type: 'STRING',
-        required: false,
-      },
-      {
-        name: 'choice4',
-        description: 'choice 4',
-        type: 'STRING',
-        required: false,
-      },
-      {
-        name: 'choice5',
-        description: 'choice 5',
-        type: 'STRING',
-        required: false,
-      },
-      {
-        name: 'choice6',
-        description: 'choice 6',
-        type: 'STRING',
-        required: false,
-      },
-      {
-        name: 'choice7',
-        description: 'choice 7',
-        type: 'STRING',
-        required: false,
-      },
-      {
-        name: 'choice8',
-        description: 'choice 8',
-        type: 'STRING',
-        required: false,
-      },
-      {
-        name: 'choice9',
-        description: 'choice 9',
-        type: 'STRING',
-        required: false,
-      },
-      {
-        name: 'choice10',
-        description: 'choice 10',
-        type: 'STRING',
-        required: false,
-      },
-    ],
+export const command: IBotCommand = {
+  name: 'poll',
+  description: 'handles polls',
+  options: [
+    {
+      name: 'create',
+      description: 'Create a poll',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'question',
+          description: 'What is the question?',
+          type: 'STRING',
+          required: true,
+        },
+        {
+          name: 'choice1',
+          description: 'choice 1',
+          type: 'STRING',
+          required: true,
+        },
+        {
+          name: 'choice2',
+          description: 'choice 2',
+          type: 'STRING',
+          required: true,
+        },
+        {
+          name: 'choice3',
+          description: 'choice 3',
+          type: 'STRING',
+          required: false,
+        },
+        {
+          name: 'choice4',
+          description: 'choice 4',
+          type: 'STRING',
+          required: false,
+        },
+        {
+          name: 'choice5',
+          description: 'choice 5',
+          type: 'STRING',
+          required: false,
+        },
+        {
+          name: 'choice6',
+          description: 'choice 6',
+          type: 'STRING',
+          required: false,
+        },
+        {
+          name: 'choice7',
+          description: 'choice 7',
+          type: 'STRING',
+          required: false,
+        },
+        {
+          name: 'choice8',
+          description: 'choice 8',
+          type: 'STRING',
+          required: false,
+        },
+        {
+          name: 'choice9',
+          description: 'choice 9',
+          type: 'STRING',
+          required: false,
+        },
+        {
+          name: 'choice10',
+          description: 'choice 10',
+          type: 'STRING',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'show',
+      description: 'Display results of poll',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'channel',
+          description: 'channel where poll exists',
+          required: true,
+          type: 'CHANNEL',
+        },
+        {
+          name: 'messageid',
+          description: 'Message ID of the poll',
+          required: true,
+          type: 'STRING',
+        },
+      ],
+    },
+  ],
+  execute: async (interaction) => {
+    switch (interaction.options.getSubcommand()) {
+      case 'create':
+        await createPoll(interaction);
+        break;
+      case 'show':
+        await showPoll(interaction);
+        break;
+      default:
+        break;
+    }
   },
-  {
-    name: 'show',
-    description: 'Display results of poll',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'channel',
-        description: 'channel where poll exists',
-        required: true,
-        type: 'CHANNEL',
-      },
-      {
-        name: 'messageid',
-        description: 'Message ID of the poll',
-        required: true,
-        type: 'STRING',
-      },
-    ],
-  },
-];
-
-const execute = async (interaction: CommandInteraction): Promise<void> => {
-  switch (interaction.options.getSubcommand()) {
-    case 'create':
-      await createPoll(interaction);
-      break;
-    case 'show':
-      await showPoll(interaction);
-      break;
-    default:
-      break;
-  }
 };
-
-export const command: BotCommand = { name, description, options, execute };
 export default command;
 
 const createPoll = async (interaction: CommandInteraction) => {

@@ -1,7 +1,7 @@
 import { Client, Collection } from 'discord.js';
-import { BotCommand } from './botCommand';
+import { IBotCommand } from './botCommand';
 
-export interface BotClient {
+export interface IBotClient {
   client: Client;
-  commands: Collection<string, BotCommand>;
+  commands: Collection<string, IBotCommand>;
 }

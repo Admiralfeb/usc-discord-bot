@@ -1,8 +1,8 @@
 import { ApplicationCommandData, Collection } from 'discord.js';
-import { BotCommand } from '../models/botCommand';
+import { IBotCommand } from '../models/botCommand';
 
 export const getCommandData = (
-  commandCollection: Collection<string, BotCommand>
+  commandCollection: Collection<string, IBotCommand>
 ): ApplicationCommandData[] => {
   let commands: ApplicationCommandData[] = [];
   for (const command of commandCollection) {

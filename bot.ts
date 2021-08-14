@@ -1,8 +1,8 @@
 import fs from 'fs';
 import { Client, Collection, Intents } from 'discord.js';
 import { token } from './config';
-import { BotClient } from './models/botClient';
-import { BotCommand } from './models/botCommand';
+import { IBotClient } from './models/botClient';
+import { IBotCommand } from './models/botCommand';
 
 const client = new Client({
   intents: [
@@ -13,9 +13,9 @@ const client = new Client({
   ],
   partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'],
 });
-const commands = new Collection<string, BotCommand>();
+const commands = new Collection<string, IBotCommand>();
 
-const botClient: BotClient = { client, commands };
+const botClient: IBotClient = { client, commands };
 
 export const startBot = (): void => {
   console.log(__dirname);

@@ -1,15 +1,11 @@
-import { ClientEvents, GuildMember } from 'discord.js';
+import { GuildMember } from 'discord.js';
+import { IBotEvent } from '../models/botEvent';
 
-export const event: IEvent = {
+export const event: IBotEvent = {
   name: 'guildMemberRemove',
   once: false,
   needsClient: false,
-  execute: (member: GuildMember): Promise<void> => {},
+  execute: async (member: GuildMember) => {
+    return;
+  },
 };
-
-interface IEvent {
-  name: keyof ClientEvents;
-  once: boolean;
-  needsClient: boolean;
-  execute: (...args: unknown[]) => Promise<void>;
-}

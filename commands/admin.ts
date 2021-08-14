@@ -1,11 +1,162 @@
-import {
-  ApplicationCommandOption,
-  CommandInteraction,
-  GuildMember,
-} from 'discord.js';
-import { AuthUser } from '../models/authUser';
-import { BotCommand } from '../models/botCommand';
+import { CommandInteraction, GuildMember } from 'discord.js';
+import { IAuthUser } from '../models/authUser';
+import { IBotCommand } from '../models/botCommand';
 import { getValue, setValue } from '../utils/mongodb';
+
+export const command: IBotCommand = {
+  name: 'admin',
+  description: "Bot's admin functions",
+  options: [
+    {
+      name: 'auth_users',
+      description: 'Controls the authorized admin users',
+      type: 'SUB_COMMAND_GROUP',
+      options: [
+        {
+          name: 'add',
+          description: 'Add authorized admin user',
+          type: 'SUB_COMMAND',
+          options: [
+            {
+              name: 'user',
+              description: 'User you wish to add.',
+              type: 'USER',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'delete',
+          description: 'Delete authorized admin user',
+          type: 'SUB_COMMAND',
+          options: [
+            {
+              name: 'user',
+              description: 'User you wish to delete.',
+              type: 'USER',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'list',
+          description: 'List authorized admin users',
+          type: 'SUB_COMMAND',
+        },
+      ],
+    },
+    {
+      name: 'setup_member',
+      description: 'Setup a new member',
+      type: 'SUB_COMMAND_GROUP',
+      options: [
+        {
+          name: 'finalize',
+          description: 'Finalize member after Bot has started process',
+          type: 'SUB_COMMAND',
+          options: [
+            {
+              name: 'user',
+              description: 'discord user to change',
+              type: 'USER',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'manual',
+          description: 'Setup a new member manually',
+          type: 'SUB_COMMAND',
+          options: [
+            {
+              name: 'user',
+              description: 'discord user to change',
+              type: 'USER',
+              required: true,
+            },
+            {
+              name: 'name',
+              description: 'name to change to - WITHOUT CMDR',
+              type: 'STRING',
+              required: true,
+            },
+            {
+              name: 'platform',
+              type: 'STRING',
+              description: 'platform the user plays on',
+              required: true,
+              choices: [
+                {
+                  name: 'PC',
+                  value: 'PC',
+                },
+                {
+                  name: 'Xbox One',
+                  value: 'Xbox',
+                },
+                {
+                  name: 'PlayStation 4',
+                  value: 'PS4',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  execute: async (interaction) => {
+    console.log(interaction.options);
+    const userId = interaction.user.id;
+    interaction.deferReply({ ephemeral: true });
+    const authUsers = (await getValue('authorized_users')) as IAuthUser[];
+
+    if (checkAuth(userId, authUsers) === false) {
+      await interaction.editReply({
+        content: 'Unauthorized to use admin functions',
+      });
+      return;
+    }
+
+    if (interaction.options.getSubcommandGroup() === 'auth_users') {
+      switch (interaction.options.getSubcommand()) {
+        case 'add':
+          await addAuthUser(interaction, authUsers);
+          break;
+        case 'delete':
+          await deleteAuthUser(interaction, authUsers);
+          break;
+        case 'list':
+          await listAuthUsers(interaction, authUsers);
+          return;
+        default:
+          await interaction.editReply({
+            content: 'Error in admin/auth_users interaction',
+          });
+          break;
+      }
+    } else if (interaction.options.getSubcommandGroup() === 'setup_member') {
+      switch (interaction.options.getSubcommand()) {
+        case 'finalize':
+          await finalizeMember(interaction);
+          break;
+        case 'manual':
+          await setupMember(interaction);
+          break;
+        default:
+          await interaction.editReply({
+            content: 'Error in admin/setup_member interaction',
+          });
+          break;
+      }
+    } else {
+      await interaction.editReply({
+        content: 'Error in admin interaction',
+      });
+    }
+  },
+};
+export default command;
 
 const checkAuth = (
   userId: string,
@@ -19,161 +170,6 @@ const checkAuth = (
   }
   return false;
 };
-
-const name = 'admin';
-const description = "Bot's admin functions";
-const options: ApplicationCommandOption[] = [
-  {
-    name: 'auth_users',
-    description: 'Controls the authorized admin users',
-    type: 'SUB_COMMAND_GROUP',
-    options: [
-      {
-        name: 'add',
-        description: 'Add authorized admin user',
-        type: 'SUB_COMMAND',
-        options: [
-          {
-            name: 'user',
-            description: 'User you wish to add.',
-            type: 'USER',
-            required: true,
-          },
-        ],
-      },
-      {
-        name: 'delete',
-        description: 'Delete authorized admin user',
-        type: 'SUB_COMMAND',
-        options: [
-          {
-            name: 'user',
-            description: 'User you wish to delete.',
-            type: 'USER',
-            required: true,
-          },
-        ],
-      },
-      {
-        name: 'list',
-        description: 'List authorized admin users',
-        type: 'SUB_COMMAND',
-      },
-    ],
-  },
-  {
-    name: 'setup_member',
-    description: 'Setup a new member',
-    type: 'SUB_COMMAND_GROUP',
-    options: [
-      {
-        name: 'finalize',
-        description: 'Finalize member after Bot has started process',
-        type: 'SUB_COMMAND',
-        options: [
-          {
-            name: 'user',
-            description: 'discord user to change',
-            type: 'USER',
-            required: true,
-          },
-        ],
-      },
-      {
-        name: 'manual',
-        description: 'Setup a new member manually',
-        type: 'SUB_COMMAND',
-        options: [
-          {
-            name: 'user',
-            description: 'discord user to change',
-            type: 'USER',
-            required: true,
-          },
-          {
-            name: 'name',
-            description: 'name to change to - WITHOUT CMDR',
-            type: 'STRING',
-            required: true,
-          },
-          {
-            name: 'platform',
-            type: 'STRING',
-            description: 'platform the user plays on',
-            required: true,
-            choices: [
-              {
-                name: 'PC',
-                value: 'PC',
-              },
-              {
-                name: 'Xbox One',
-                value: 'Xbox',
-              },
-              {
-                name: 'PlayStation 4',
-                value: 'PS4',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
-const execute = async (interaction: CommandInteraction): Promise<void> => {
-  console.log(interaction.options);
-  const userId = interaction.user.id;
-  interaction.deferReply({ ephemeral: true });
-  const authUsers = (await getValue('authorized_users')) as AuthUser[];
-
-  if (checkAuth(userId, authUsers) === false) {
-    await interaction.editReply({
-      content: 'Unauthorized to use admin functions',
-    });
-    return;
-  }
-
-  if (interaction.options.getSubcommandGroup() === 'auth_users') {
-    switch (interaction.options.getSubcommand()) {
-      case 'add':
-        await addAuthUser(interaction, authUsers);
-        break;
-      case 'delete':
-        await deleteAuthUser(interaction, authUsers);
-        break;
-      case 'list':
-        await listAuthUsers(interaction, authUsers);
-        return;
-      default:
-        await interaction.editReply({
-          content: 'Error in admin/auth_users interaction',
-        });
-        break;
-    }
-  } else if (interaction.options.getSubcommandGroup() === 'setup_member') {
-    switch (interaction.options.getSubcommand()) {
-      case 'finalize':
-        await finalizeMember(interaction);
-        break;
-      case 'manual':
-        await setupMember(interaction);
-        break;
-      default:
-        await interaction.editReply({
-          content: 'Error in admin/setup_member interaction',
-        });
-        break;
-    }
-  } else {
-    await interaction.editReply({
-      content: 'Error in admin interaction',
-    });
-  }
-};
-
-export const command: BotCommand = { name, description, options, execute };
-export default command;
 
 const addAuthUser = async (
   interaction: CommandInteraction,

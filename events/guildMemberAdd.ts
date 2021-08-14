@@ -1,5 +1,4 @@
 import {
-  ClientEvents,
   GuildMember,
   MessageActionRow,
   MessageButton,
@@ -7,31 +6,34 @@ import {
   TextChannel,
 } from 'discord.js';
 import { setupMember } from '../functions/setupMember';
+import { IBotEvent } from '../models/botEvent';
 import { getJoinRequest } from '../utils/mongodb';
 
-const name: keyof ClientEvents = 'guildMemberAdd';
-const once = false;
-const needsClient = false;
-const execute = async (member: GuildMember): Promise<void> => {
-  console.log(member);
-  const joiningChannel = member.guild.channels.cache.get(
-    '708038933132476537'
-  ) as TextChannel;
-  const joinRequest = await getJoinRequest(member.user.tag);
-  const roles = member.guild.roles.cache;
-  const disassociateRole = roles.find(
-    (role) => role.name === 'Dissociate Member'
-  );
-  const newRole = roles.find((role) => role.name === 'New Member');
+export const event: IBotEvent = {
+  name: 'guildMemberAdd',
+  once: false,
+  needsClient: false,
+  execute: async (member: GuildMember) => {
+    console.log(member);
+    const joiningChannel = member.guild.channels.cache.get(
+      '708038933132476537'
+    ) as TextChannel;
+    const joinRequest = await getJoinRequest(member.user.tag);
+    const roles = member.guild.roles.cache;
+    const disassociateRole = roles.find(
+      (role) => role.name === 'Dissociate Member'
+    );
+    const newRole = roles.find((role) => role.name === 'New Member');
 
-  if (disassociateRole) member.roles.add(disassociateRole, 'auto-setup');
-  if (newRole) member.roles.add(newRole, 'auto-setup');
+    if (disassociateRole) member.roles.add(disassociateRole, 'auto-setup');
+    if (newRole) member.roles.add(newRole, 'auto-setup');
 
-  if (joinRequest) {
-    await setupMember(member, joinRequest, joiningChannel);
-  } else {
-    await requestJoinRequest(member, joiningChannel);
-  }
+    if (joinRequest) {
+      await setupMember(member, joinRequest, joiningChannel);
+    } else {
+      await requestJoinRequest(member, joiningChannel);
+    }
+  },
 };
 
 const requestJoinRequest = async (
@@ -69,5 +71,4 @@ const requestJoinRequest = async (
   }
 };
 
-export const event = { name, once, needsClient, execute };
 export default event;

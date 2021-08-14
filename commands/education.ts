@@ -1,203 +1,198 @@
-/* eslint-disable no-case-declarations */
-import {
-  ApplicationCommandOption,
-  CommandInteraction,
-  MessageEmbed,
-} from 'discord.js';
+import { CommandInteraction, MessageEmbed } from 'discord.js';
 import RankData from '../data/ranks';
-import { BotCommand } from '../models/botCommand';
+import { IBotCommand } from '../models/botCommand';
 
 const INFORMATION_SENT = 'Information sent to user.';
 
-const name = 'edu';
-const description = "Bot's educational functions";
-const options: ApplicationCommandOption[] = [
-  {
-    name: 'combat-logging',
-    description: 'What is combat logging?',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'engineers-fox',
-    description: "Fox's Guide to unlock engineers",
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'engineers-inara',
-    description: 'Engineer List on Inara',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'fsd-booster',
-    description:
-      "Link to Exegious' video on how to unlock the Guardian FSD Booster",
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'neutron',
-    description: 'How to use Neutron Highway',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'option',
-        description: "Choose what you'd like to know about the Neutron Highway",
-        type: 'STRING',
-        required: true,
-        choices: [
-          { value: 'img', name: 'Image Tutorial' },
-          { value: 'spansh', name: "Spansh's Website" },
-        ],
-      },
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'promotions',
-    description: 'How do I get promoted?',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'ranks',
-    description: "What are the Pilot's Federation or Navy Ranks?",
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'rank_set',
-        description: 'Rank to see',
-        required: true,
-        type: 'STRING',
-        choices: [
-          { name: 'Combat - Ship Only', value: 'combat' },
-          { name: 'Trade - Ship Only', value: 'trade' },
-          { name: 'Exploration - Ship Only', value: 'exploration' },
-          { name: 'CQC - Ship Only', value: 'cqc' },
-          { name: 'Exobiologist - Foot Only', value: 'exobiologist' },
-          { name: 'Mercenary - Foot Only', value: 'mercenary' },
-          { name: 'Imperial Navy', value: 'empire' },
-          { name: 'Federation Navy', value: 'federation' },
-        ],
-      },
-      {
-        name: 'user',
-        description: 'Send this to a cmdr instead of public',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'scoopable',
-    description: 'What stars can I scoop?',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-  {
-    name: 'websites',
-    description: 'gives a list of 3rd party websites',
-    type: 'SUB_COMMAND',
-    options: [
-      {
-        name: 'user',
-        description: 'discord user to send to',
-        type: 'USER',
-        required: false,
-      },
-    ],
-  },
-];
+export const command: IBotCommand = {
+  name: 'edu',
+  description: "Bot's education functions",
+  options: [
+    {
+      name: 'combat-logging',
+      description: 'What is combat logging?',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'engineers-fox',
+      description: "Fox's Guide to unlock engineers",
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'engineers-inara',
+      description: 'Engineer List on Inara',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'fsd-booster',
+      description:
+        "Link to Exegious' video on how to unlock the Guardian FSD Booster",
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'neutron',
+      description: 'How to use Neutron Highway',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'option',
+          description:
+            "Choose what you'd like to know about the Neutron Highway",
+          type: 'STRING',
+          required: true,
+          choices: [
+            { value: 'img', name: 'Image Tutorial' },
+            { value: 'spansh', name: "Spansh's Website" },
+          ],
+        },
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'promotions',
+      description: 'How do I get promoted?',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'ranks',
+      description: "What are the Pilot's Federation or Navy Ranks?",
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'rank_set',
+          description: 'Rank to see',
+          required: true,
+          type: 'STRING',
+          choices: [
+            { name: 'Combat - Ship Only', value: 'combat' },
+            { name: 'Trade - Ship Only', value: 'trade' },
+            { name: 'Exploration - Ship Only', value: 'exploration' },
+            { name: 'CQC - Ship Only', value: 'cqc' },
+            { name: 'Exobiologist - Foot Only', value: 'exobiologist' },
+            { name: 'Mercenary - Foot Only', value: 'mercenary' },
+            { name: 'Imperial Navy', value: 'empire' },
+            { name: 'Federation Navy', value: 'federation' },
+          ],
+        },
+        {
+          name: 'user',
+          description: 'Send this to a cmdr instead of public',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'scoopable',
+      description: 'What stars can I scoop?',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+    {
+      name: 'websites',
+      description: 'gives a list of 3rd party websites',
+      type: 'SUB_COMMAND',
+      options: [
+        {
+          name: 'user',
+          description: 'discord user to send to',
+          type: 'USER',
+          required: false,
+        },
+      ],
+    },
+  ],
+  execute: async (interaction) => {
+    console.log(interaction.options);
 
-const execute = async (interaction: CommandInteraction): Promise<void> => {
-  console.log(interaction.options);
-
-  switch (interaction.options.getSubcommand()) {
-    case 'combat-logging':
-      await combatLogging(interaction);
-      break;
-    case 'engineers-fox':
-      await engineersFox(interaction);
-      break;
-    case 'engineers-inara':
-      await engineersInara(interaction);
-      break;
-    case 'fsd-booster':
-      await fsdBooster(interaction);
-      break;
-    case 'neutron':
-      await neutron(interaction);
-      break;
-    case 'promotions':
-      await promotions(interaction);
-      break;
-    case 'ranks':
-      await ranks(interaction);
-      break;
-    case 'scoopable':
-      await scoopable(interaction);
-      break;
-    case 'websites':
-      await websites(interaction);
-      break;
-    default:
-      await interaction.editReply({
-        content: 'Error in educational interaction',
-      });
-      break;
-  }
+    switch (interaction.options.getSubcommand()) {
+      case 'combat-logging':
+        await combatLogging(interaction);
+        break;
+      case 'engineers-fox':
+        await engineersFox(interaction);
+        break;
+      case 'engineers-inara':
+        await engineersInara(interaction);
+        break;
+      case 'fsd-booster':
+        await fsdBooster(interaction);
+        break;
+      case 'neutron':
+        await neutron(interaction);
+        break;
+      case 'promotions':
+        await promotions(interaction);
+        break;
+      case 'ranks':
+        await ranks(interaction);
+        break;
+      case 'scoopable':
+        await scoopable(interaction);
+        break;
+      case 'websites':
+        await websites(interaction);
+        break;
+      default:
+        await interaction.editReply({
+          content: 'Error in educational interaction',
+        });
+        break;
+    }
+  },
 };
-
-export const command: BotCommand = { name, description, options, execute };
 export default command;
 
 const combatLogging = async (

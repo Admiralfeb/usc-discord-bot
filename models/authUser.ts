@@ -1,4 +1,4 @@
-export interface AuthUser {
+export interface IAuthUser {
   id: string;
   name: string;
   discriminator: string;
