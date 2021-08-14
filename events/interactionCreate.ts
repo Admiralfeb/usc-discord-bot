@@ -2,6 +2,7 @@ import { Interaction } from 'discord.js';
 import { BotClient } from '../models/botClient';
 
 const name = 'interactionCreate';
+const needsClient = true;
 const execute = async (
   interaction: Interaction,
   client: BotClient
@@ -31,5 +32,5 @@ const execute = async (
   }
 };
 
-export const event = { name, once: false, execute };
+export const event = { name, once: false, needsClient, execute };
 export default event;

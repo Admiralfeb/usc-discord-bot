@@ -64,37 +64,57 @@ const options: ApplicationCommandOption[] = [
   {
     name: 'setup_member',
     description: 'Setup a new member',
-    type: 'SUB_COMMAND',
+    type: 'SUB_COMMAND_GROUP',
     options: [
       {
-        name: 'user',
-        description: 'discord user to change',
-        type: 'USER',
-        required: true,
+        name: 'finalize',
+        description: 'Finalize member after Bot has started process',
+        type: 'SUB_COMMAND',
+        options: [
+          {
+            name: 'user',
+            description: 'discord user to change',
+            type: 'USER',
+            required: true,
+          },
+        ],
       },
       {
-        name: 'name',
-        description: 'name to change to - WITHOUT CMDR',
-        type: 'STRING',
-        required: true,
-      },
-      {
-        name: 'platform',
-        type: 'STRING',
-        description: 'platform the user plays on',
-        required: true,
-        choices: [
+        name: 'manual',
+        description: 'Setup a new member manually',
+        type: 'SUB_COMMAND',
+        options: [
           {
-            name: 'PC',
-            value: 'PC',
+            name: 'user',
+            description: 'discord user to change',
+            type: 'USER',
+            required: true,
           },
           {
-            name: 'Xbox One',
-            value: 'Xbox',
+            name: 'name',
+            description: 'name to change to - WITHOUT CMDR',
+            type: 'STRING',
+            required: true,
           },
           {
-            name: 'PlayStation 4',
-            value: 'PS4',
+            name: 'platform',
+            type: 'STRING',
+            description: 'platform the user plays on',
+            required: true,
+            choices: [
+              {
+                name: 'PC',
+                value: 'PC',
+              },
+              {
+                name: 'Xbox One',
+                value: 'Xbox',
+              },
+              {
+                name: 'PlayStation 4',
+                value: 'PS4',
+              },
+            ],
           },
         ],
       },
@@ -131,8 +151,20 @@ const execute = async (interaction: CommandInteraction): Promise<void> => {
         });
         break;
     }
-  } else if (interaction.options.getSubcommand() === 'setup_member') {
-    await setupMember(interaction);
+  } else if (interaction.options.getSubcommandGroup() === 'setup_member') {
+    switch (interaction.options.getSubcommand()) {
+      case 'finalize':
+        await finalizeMember(interaction);
+        break;
+      case 'manual':
+        await setupMember(interaction);
+        break;
+      default:
+        await interaction.editReply({
+          content: 'Error in admin/setup_member interaction',
+        });
+        break;
+    }
   } else {
     await interaction.editReply({
       content: 'Error in admin interaction',
@@ -204,12 +236,23 @@ const listAuthUsers = async (
   });
 };
 
+const finalizeMember = async (
+  interaction: CommandInteraction
+): Promise<void> => {
+  const user = interaction.options.getMember('user', true) as GuildMember;
+  console.log({ user });
+};
+
 const setupMember = async (interaction: CommandInteraction): Promise<void> => {
   const user = interaction.options.getMember('user', true) as GuildMember;
   const nickname = interaction.options.getString('name', true);
   const platform = interaction.options.getString('platform', true);
+  console.log({ user, nickname, platform });
 
+  // set nickname
   await user.setNickname(`CMDR ${nickname}`, 'Cmdr Setup');
 
-  console.log({ user, nickname, platform });
+  // set roles
+  const roles = interaction.guild?.roles;
+  console.log({ roles });
 };

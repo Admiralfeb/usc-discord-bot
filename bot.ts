@@ -9,6 +9,7 @@ const client = new Client({
     Intents.FLAGS.GUILDS,
     Intents.FLAGS.GUILD_MESSAGES,
     Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+    Intents.FLAGS.GUILD_MEMBERS,
   ],
   partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'],
 });
@@ -36,15 +37,26 @@ export const startBot = (): void => {
   for (const file of eventFiles) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { event } = require(`${__dirname}/events/${file}`);
-    console.log(event);
-    if (event.once) {
-      botClient.client.once(event.name, (...args: unknown[]) =>
-        event.execute(...args, botClient)
-      );
+    if (event.needsClient === true) {
+      if (event.once) {
+        botClient.client.once(event.name, (...args: unknown[]) => {
+          event.execute(...args, botClient);
+        });
+      } else {
+        botClient.client.on(event.name, (...args: unknown[]) => {
+          event.execute(...args, botClient);
+        });
+      }
     } else {
-      botClient.client.on(event.name, (...args: unknown[]) =>
-        event.execute(...args, botClient)
-      );
+      if (event.once) {
+        botClient.client.once(event.name, (...args: unknown[]) => {
+          event.execute(...args);
+        });
+      } else {
+        botClient.client.on(event.name, (...args: unknown[]) => {
+          event.execute(...args);
+        });
+      }
     }
   }
 
