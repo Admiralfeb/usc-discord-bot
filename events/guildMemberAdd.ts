@@ -39,7 +39,7 @@ export const event: IBotEvent = {
 
 const requestJoinRequest = async (
   member: GuildMember,
-  joiningChannel: TextChannel
+  joiningChannel: TextChannel | undefined
 ): Promise<void> => {
   const welcomeMessage = new MessageEmbed()
     .setTitle(
