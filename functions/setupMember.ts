@@ -25,7 +25,7 @@ export const setupMember = async (
   const platforms = joinRequest.platforms;
   const type = joinRequest.type;
 
-  member.setNickname(cmdrName, 'auto-setup');
+  member.setNickname(`CMDR ${cmdrName}`, 'auto-setup');
 
   switch (type) {
     case 'join':

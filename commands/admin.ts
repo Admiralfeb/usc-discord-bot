@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember } from 'discord.js';
+import { Collection, CommandInteraction, GuildMember, Role } from 'discord.js';
 import { IAuthUser } from '../models/authUser';
 import { IBotCommand } from '../models/botCommand';
 import { getValue, setValue } from '../utils/mongodb';
@@ -52,7 +52,7 @@ export const command: IBotCommand = {
       options: [
         {
           name: 'finalize',
-          description: 'Finalize member after Bot has started process',
+          description: 'Finalize user after Bot has started process',
           type: 'SUB_COMMAND',
           options: [
             {
@@ -65,7 +65,7 @@ export const command: IBotCommand = {
         },
         {
           name: 'manual',
-          description: 'Setup a new member manually',
+          description: 'Setup a new user manually',
           type: 'SUB_COMMAND',
           options: [
             {
@@ -79,6 +79,26 @@ export const command: IBotCommand = {
               description: 'name to change to - WITHOUT CMDR',
               type: 'STRING',
               required: true,
+            },
+            {
+              name: 'type',
+              type: 'STRING',
+              description: 'What type of user?',
+              required: true,
+              choices: [
+                {
+                  name: 'Fleet Member',
+                  value: 'Fleet Member',
+                },
+                {
+                  name: 'Ambassador',
+                  value: 'Ambassador',
+                },
+                {
+                  name: 'Guest',
+                  value: 'Guest',
+                },
+              ],
             },
             {
               name: 'platform',
@@ -239,10 +259,18 @@ const finalizeMember = async (
 ): Promise<void> => {
   try {
     const user = interaction.options.getMember('user', true) as GuildMember;
-    console.log({ user });
+    const isCadet = user.roles.cache.some((x) => x.name === 'Cadet');
 
-    const roles = interaction.guild?.roles.cache;
+    const roles = await interaction.guild?.roles.fetch();
     if (roles) {
+      if (isCadet) {
+        const fleetMemberRole = roles.find(
+          (role) => role.name === 'Fleet Member'
+        );
+        if (fleetMemberRole)
+          await user.roles.add(fleetMemberRole, 'finalize member');
+      }
+
       const disassociateRole = roles.find(
         (role) => role.name === 'Dissociate Member'
       );
@@ -252,10 +280,13 @@ const finalizeMember = async (
         await user.roles.remove(disassociateRole, 'finalize member');
       if (newRole) await user.roles.remove(newRole, 'finalize member');
     }
+    await interaction.editReply({
+      content: `${user.displayName}'s setup has been finalized.`,
+    });
   } catch (e) {
-    await interaction.reply({
+    console.error(e.message);
+    await interaction.editReply({
       content: 'There was an issue finalizing the member.',
-      ephemeral: true,
     });
   }
 };
@@ -264,12 +295,49 @@ const setupMember = async (interaction: CommandInteraction): Promise<void> => {
   const user = interaction.options.getMember('user', true) as GuildMember;
   const nickname = interaction.options.getString('name', true);
   const platform = interaction.options.getString('platform', true);
+  const type = interaction.options.getString('type', true);
   console.log({ user, nickname, platform });
 
   // set nickname
   await user.setNickname(`CMDR ${nickname}`, 'Cmdr Setup');
 
   // set roles
-  const roles = interaction.guild?.roles;
-  console.log({ roles });
+  const roles = await interaction.guild?.roles.fetch();
+  if (roles) {
+    const dissociateRole = roles.find((x) => x.name === 'Dissociate Member');
+    try {
+      switch (type) {
+        case 'Fleet Member':
+          await setRole(user, roles, 'Fleet Member');
+          await setRole(user, roles, 'Cadet');
+          break;
+        case 'Ambassador':
+          await setRole(user, roles, 'Ambassador');
+          break;
+        case 'Guest':
+          await setRole(user, roles, 'Guest');
+          break;
+        default:
+          throw new Error('Improper member type');
+      }
+      if (dissociateRole) await user.roles.remove(dissociateRole);
+    } catch (e) {
+      if (e.message) {
+        await interaction.editReply({ content: `Error: ${e.message}` });
+      }
+    }
+  }
+  await interaction.editReply({
+    content: 'User setup complete.',
+  });
+};
+
+const setRole = async (
+  member: GuildMember,
+  collection: Collection<string, Role>,
+  roleName: string
+): Promise<void> => {
+  const role = collection.find((x) => x.name === roleName);
+  if (role) await member.roles.add(role);
+  else throw new Error('Role not found');
 };

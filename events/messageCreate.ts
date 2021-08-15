@@ -9,24 +9,33 @@ export const event: IBotEvent = {
   needsClient: false,
   execute: async (message: Message) => {
     if (message.channelId === '708038933132476537') {
-      const webhook = await message.fetchWebhook();
-      if (webhook) {
-        if (webhook.name === 'Application System') {
-          const text = message.embeds[0].description ?? '';
-          const index = text.indexOf('has');
-          const userName = text.slice(0, index);
-          if (userName) {
-            const member = message.guild?.members.cache.find(
-              (x) => x.user.tag.toLowerCase() === userName.trim().toLowerCase()
-            );
-            if (member) {
-              const joiningChannel = member.guild.channels.cache.get(
-                '708038933132476537'
-              ) as TextChannel;
-              const joinRequest = await getJoinRequest(member.user.tag);
+      if (message.webhookId) {
+        const webhook = await message.fetchWebhook();
+        if (webhook) {
+          if (webhook.name === 'Application System') {
+            const text = message.embeds[0].description ?? '';
+            const index = text.indexOf('has');
+            const userName = text.slice(0, index).replace(/\*/g, '').trim();
+            if (userName) {
+              console.log({ userName });
+              const guild = await message.guild?.fetch();
+              if (guild) {
+                const members = await guild.members.fetch();
+                const member = members.find(
+                  (x) => x.user.tag.toLowerCase() === userName.toLowerCase()
+                );
+                console.log({ member });
+                if (member) {
+                  const joiningChannel = guild.channels.cache.get(
+                    '708038933132476537'
+                  ) as TextChannel;
+                  const joinRequest = await getJoinRequest(member.user.tag);
+                  console.log({ joinRequest });
 
-              if (joinRequest) {
-                await setupMember(member, joinRequest, joiningChannel);
+                  if (joinRequest) {
+                    await setupMember(member, joinRequest, joiningChannel);
+                  }
+                }
               }
             }
           }

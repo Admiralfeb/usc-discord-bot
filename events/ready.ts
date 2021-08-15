@@ -9,6 +9,7 @@ export const event: IBotEvent = {
   once: true,
   needsClient: true,
   execute: async (client: Client, bot: IBotClient) => {
+    // await client.guilds.cache.get(guildId)?.commands.set([]);
     const commands = await client.guilds.cache
       .get(guildId)
       ?.commands.set(getCommandData(bot.commands));

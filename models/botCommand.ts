@@ -1,10 +1,10 @@
 import {
-  ApplicationCommandData,
   ApplicationCommandPermissionData,
+  ChatInputApplicationCommandData,
   CommandInteraction,
 } from 'discord.js';
 
-export interface IBotCommand extends ApplicationCommandData {
+export interface IBotCommand extends ChatInputApplicationCommandData {
   permissions?: ApplicationCommandPermissionData[];
   execute: (interaction: CommandInteraction) => Promise<void>;
 }

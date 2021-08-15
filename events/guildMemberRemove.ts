@@ -6,6 +6,7 @@ export const event: IBotEvent = {
   once: false,
   needsClient: false,
   execute: async (member: GuildMember) => {
+    console.log('member left triggered');
     const roles = member.roles.cache.reduce((acc, val) => acc + ` ${val}`, '');
 
     const embed = new MessageEmbed()
