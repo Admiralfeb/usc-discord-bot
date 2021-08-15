@@ -1,6 +1,7 @@
 import { Client } from 'discord.js';
 import { guildId } from '../config';
 import { getCommandData } from '../functions/getCommandData';
+import { pollGalnet } from '../functions/pollGalnet';
 import { IBotClient } from '../models/botClient';
 import { IBotEvent } from '../models/botEvent';
 
@@ -22,6 +23,9 @@ export const event: IBotEvent = {
       }
     }
     console.log(`Ready! Logged in as ${client.user?.tag}`);
+
+    await pollGalnet(bot);
+    setInterval(async () => await pollGalnet(bot), 600000);
   },
 };
 export default event;

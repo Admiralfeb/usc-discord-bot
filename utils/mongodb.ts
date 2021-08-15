@@ -2,7 +2,7 @@ import { mongo_conn } from '../config';
 import { MongoClient } from 'mongodb';
 import { JoinRequest } from '../models/joinRequest';
 
-export const getValue = async (key: string): Promise<unknown> => {
+export const getValue = async <T>(key: string): Promise<T> => {
   const client = new MongoClient(mongo_conn);
   try {
     await client.connect();
@@ -13,7 +13,7 @@ export const getValue = async (key: string): Promise<unknown> => {
     const query = { key };
     const doc = await collection.findOne(query);
 
-    const value = doc?.value;
+    const value = doc?.value as T;
 
     return value;
   } finally {
@@ -21,7 +21,7 @@ export const getValue = async (key: string): Promise<unknown> => {
   }
 };
 
-export const setValue = async (key: string, value: unknown): Promise<void> => {
+export const setValue = async <T>(key: string, value: T): Promise<void> => {
   const client = new MongoClient(mongo_conn);
   try {
     await client.connect();
