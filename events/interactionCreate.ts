@@ -22,7 +22,10 @@ export const event: IBotEvent = {
     }
 
     try {
-      await client.commands.get(interaction.commandName)?.execute(interaction);
+      const command = client.commands.get(interaction.commandName);
+      if (command && !command.isDev) {
+        command.execute(interaction);
+      }
     } catch (error) {
       console.error(error);
       await interaction.reply({

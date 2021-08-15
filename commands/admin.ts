@@ -1,4 +1,12 @@
-import { Collection, CommandInteraction, GuildMember, Role } from 'discord.js';
+import {
+  Collection,
+  CommandInteraction,
+  GuildMember,
+  Message,
+  MessageEmbed,
+  Role,
+  TextChannel,
+} from 'discord.js';
 import { IAuthUser } from '../models/authUser';
 import { IBotCommand } from '../models/botCommand';
 import { getValue, setValue } from '../utils/mongodb';
@@ -124,6 +132,44 @@ export const command: IBotCommand = {
         },
       ],
     },
+    {
+      name: 'gankers',
+      description: 'controls the ganker listing',
+      type: 'SUB_COMMAND_GROUP',
+      options: [
+        {
+          name: 'add',
+          description: 'Add a ganker to the list',
+          type: 'SUB_COMMAND',
+          options: [
+            {
+              name: 'cmdr-name',
+              description: 'Name of ganker to add',
+              type: 'STRING',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'remove',
+          description: 'remove a ganker to the list',
+          type: 'SUB_COMMAND',
+          options: [
+            {
+              name: 'cmdr-name',
+              description: 'Name of ganker to remove',
+              type: 'STRING',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'update',
+          description: 'Updates the ganker list from the database',
+          type: 'SUB_COMMAND',
+        },
+      ],
+    },
   ],
   defaultPermission: false,
   permissions: [{ id: '708389814453665852', type: 'ROLE', permission: true }],
@@ -140,41 +186,63 @@ export const command: IBotCommand = {
       return;
     }
 
-    if (interaction.options.getSubcommandGroup() === 'auth_users') {
-      switch (interaction.options.getSubcommand()) {
-        case 'add':
-          await addAuthUser(interaction, authUsers);
-          break;
-        case 'delete':
-          await deleteAuthUser(interaction, authUsers);
-          break;
-        case 'list':
-          await listAuthUsers(interaction, authUsers);
-          return;
-        default:
-          await interaction.editReply({
-            content: 'Error in admin/auth_users interaction',
-          });
-          break;
-      }
-    } else if (interaction.options.getSubcommandGroup() === 'setup_member') {
-      switch (interaction.options.getSubcommand()) {
-        case 'finalize':
-          await finalizeMember(interaction);
-          break;
-        case 'manual':
-          await setupMember(interaction);
-          break;
-        default:
-          await interaction.editReply({
-            content: 'Error in admin/setup_member interaction',
-          });
-          break;
-      }
-    } else {
-      await interaction.editReply({
-        content: 'Error in admin interaction',
-      });
+    switch (interaction.options.getSubcommandGroup()) {
+      case 'auth_users':
+        switch (interaction.options.getSubcommand()) {
+          case 'add':
+            await addAuthUser(interaction, authUsers);
+            break;
+          case 'delete':
+            await deleteAuthUser(interaction, authUsers);
+            break;
+          case 'list':
+            await listAuthUsers(interaction, authUsers);
+            return;
+          default:
+            await interaction.editReply({
+              content: 'Error in admin/auth_users interaction',
+            });
+            break;
+        }
+        break;
+      case 'setup_member':
+        switch (interaction.options.getSubcommand()) {
+          case 'finalize':
+            await finalizeMember(interaction);
+            break;
+          case 'manual':
+            await setupMember(interaction);
+            break;
+          default:
+            await interaction.editReply({
+              content: 'Error in admin/setup_member interaction',
+            });
+            break;
+        }
+        break;
+      case 'gankers':
+        switch (interaction.options.getSubcommand()) {
+          case 'add':
+            await addGanker(interaction);
+            break;
+          case 'remove':
+            await removeGanker(interaction);
+            break;
+          case 'update':
+            await updateGankers(interaction);
+            break;
+          default:
+            await interaction.editReply({
+              content: 'Error in ganker interaction',
+            });
+            break;
+        }
+        break;
+      default:
+        await interaction.editReply({
+          content: 'Error in admin interaction',
+        });
+        break;
     }
   },
 };
@@ -340,4 +408,110 @@ const setRole = async (
   const role = collection.find((x) => x.name === roleName);
   if (role) await member.roles.add(role);
   else throw new Error('Role not found');
+};
+
+const addGanker = async (interaction: CommandInteraction): Promise<void> => {
+  const newGanker = interaction.options.getString('cmdr-name', true);
+  const gankers = (await getValue<string[]>('gankers')) ?? [];
+
+  const foundGanker = gankers.find(
+    (x) => x.toLowerCase() === newGanker.toLowerCase()
+  );
+  if (foundGanker) {
+    await interaction.editReply({ content: 'Ganker is already in list' });
+    return;
+  }
+
+  const newGankers = [...gankers, newGanker];
+  await setValue('gankers', newGankers);
+
+  const embed = generateGankerEmbed(newGankers);
+  const message = await getBaseGankMessage(interaction);
+  if (message) {
+    await message.edit({ embeds: [embed] });
+  } else {
+    await interaction.editReply({
+      content: 'Ganker list was updated, but the message could not be edited.',
+    });
+    return;
+  }
+
+  await interaction.editReply({ content: 'Successfully updated ganker list' });
+};
+const removeGanker = async (interaction: CommandInteraction): Promise<void> => {
+  const newGanker = interaction.options.getString('cmdr-name', true);
+  const gankers = (await getValue<string[]>('gankers')) ?? [];
+
+  const foundGanker = gankers.find(
+    (x) => x.toLowerCase() === newGanker.toLowerCase()
+  );
+  if (!foundGanker) {
+    await interaction.editReply({
+      content: 'Ganker list unchanged. Unable to find ganker in list.',
+    });
+    return;
+  }
+
+  const index = gankers.indexOf(foundGanker);
+  const newGankers = [...gankers.slice(0, index), ...gankers.slice(index + 1)];
+
+  await setValue('gankers', newGankers);
+
+  const embed = generateGankerEmbed(newGankers);
+  const message = await getBaseGankMessage(interaction);
+  if (message) {
+    await message.edit({ embeds: [embed] });
+  } else {
+    await interaction.editReply({
+      content: 'Ganker list was updated, but the message could not be edited.',
+    });
+    return;
+  }
+
+  await interaction.editReply({
+    content: 'Successfully updated ganker list',
+  });
+};
+const updateGankers = async (
+  interaction: CommandInteraction
+): Promise<void> => {
+  const gankers = (await getValue<string[]>('gankers')) ?? [];
+  const embed = generateGankerEmbed(gankers);
+  const message = await getBaseGankMessage(interaction);
+
+  if (message) {
+    await message.edit({ embeds: [embed] });
+    await interaction.editReply({
+      content: 'Successfully updated ganker list',
+    });
+  } else {
+    await interaction.editReply({
+      content: 'Message not found. Unable to update list',
+    });
+  }
+};
+const getBaseGankMessage = async (
+  interaction: CommandInteraction
+): Promise<Message | undefined> => {
+  const channelId = await getValue<string>('gank_report_channel');
+  console.log({ channelId });
+  const messageId = await getValue<string>('gank_report_message');
+  console.log({ messageId });
+  const channel = (await interaction.client.channels.fetch(
+    channelId
+  )) as TextChannel;
+  console.log({ channel });
+  if (channel) {
+    const message = await channel.messages.fetch(messageId);
+    console.log({ message });
+    return message;
+  }
+};
+const generateGankerEmbed = (gankers: string[]): MessageEmbed => {
+  const reversed = gankers.reverse();
+  const str = reversed.join('\n');
+  const embed = new MessageEmbed()
+    .setTitle('Known Gankers')
+    .setDescription(str);
+  return embed;
 };
