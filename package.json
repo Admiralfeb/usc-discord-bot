@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npm build && node dist/index.js",
+    "dev": "npm run build && node dist/index.js",
     "build": "rimraf dist && tsc",
-    "start": "npm build && pm2 start dist/index.js --name 'USC Bot'",
+    "start": "npm run build && pm2 start dist/index.js --name 'USC Bot'",
     "stop": "pm2 stop 'USC Bot'"
   },
   "keywords": [],
