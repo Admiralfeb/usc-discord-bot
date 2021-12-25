@@ -13,9 +13,9 @@ export const setupMember = async (
   joiningChannel?: TextChannel
 ): Promise<void> => {
   const roles = await member.guild.roles.fetch();
-  const pcRole = roles.find((role) => role.name === 'PC');
-  const xbRole = roles.find((role) => role.name === 'Xbox');
-  const psRole = roles.find((role) => role.name === 'Playstation');
+  const pcRole = roles.find((role) => role.id === '662768895643615252');
+  const xbRole = roles.find((role) => role.id === '662769137721802773');
+  const psRole = roles.find((role) => role.id === '662769168617177098');
   const memberRole = roles.find((role) => role.name === 'Cadet');
   const ambassadorRole = roles.find((role) => role.name === 'Ambassador');
   const guestRole = roles.find((role) => role.name === 'Guest');
@@ -23,6 +23,7 @@ export const setupMember = async (
 
   const cmdrName = joinRequest.cmdr;
   const platform = joinRequest.platform;
+
   const type = joinRequest.type;
 
   member.setNickname(`CMDR ${cmdrName}`, 'auto-setup');
@@ -41,28 +42,37 @@ export const setupMember = async (
       break;
   }
 
-  if (pcRole && xbRole && psRole) {
-    switch (platform) {
-      case Platform.PC:
-        member.roles.add(pcRole, 'auto-setup');
-        break;
-      case Platform.Xbox:
-        member.roles.add(xbRole, 'auto-setup');
-        break;
-      case Platform.PS:
-        member.roles.add(psRole, 'auto-setup');
-        break;
-    }
+  let failedPlatform = '';
+  switch (platform) {
+    case Platform.PC:
+      if (pcRole) member.roles.add(pcRole, 'auto-setup');
+      else failedPlatform = 'PC';
+      break;
+    case Platform.Xbox:
+      if (xbRole) member.roles.add(xbRole, 'auto-setup');
+      else failedPlatform = 'Xbox';
+      break;
+    case Platform.PS:
+      if (psRole) member.roles.add(psRole, 'auto-setup');
+      else failedPlatform = 'PS';
+      break;
+    default:
+      failedPlatform = 'unknown';
   }
 
   if (newRole) member.roles.remove(newRole, 'auto-setup complete');
 
   if (joiningChannel) {
-    const message = new MessageEmbed()
+    let message = new MessageEmbed()
       .setTitle('Automated Setup Complete')
       .setDescription(
         `Automated setup complete for ${member}\n\n` +
           'Final manual verification needed. `/admin setup_member finalize` will remove dissociate and add Fleet Member if applicable.'
+      );
+    if (failedPlatform)
+      message = message.addField(
+        'Platform',
+        `Failed adding platform role. Please add it when setting up the user. Platform: ${failedPlatform}`
       );
     await joiningChannel.send({ embeds: [message] });
   }
