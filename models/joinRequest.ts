@@ -2,9 +2,11 @@ export interface JoinRequest {
   type: string;
   cmdr: string;
   discord: string;
-  platforms: {
-    pc: boolean;
-    xbox: boolean;
-    ps: boolean;
-  };
+  platform: Platform;
+}
+
+export enum Platform {
+  PC,
+  Xbox,
+  PS,
 }

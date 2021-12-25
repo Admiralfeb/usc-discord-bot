@@ -1,5 +1,5 @@
 import { GuildMember, MessageEmbed, TextChannel } from 'discord.js';
-import { JoinRequest } from '../models/joinRequest';
+import { JoinRequest, Platform } from '../models/joinRequest';
 
 /**
  * Sets up a member in the server.
@@ -12,7 +12,7 @@ export const setupMember = async (
   joinRequest: JoinRequest,
   joiningChannel?: TextChannel
 ): Promise<void> => {
-  const roles = member.guild.roles.cache;
+  const roles = await member.guild.roles.fetch();
   const pcRole = roles.find((role) => role.name === 'PC');
   const xbRole = roles.find((role) => role.name === 'Xbox');
   const psRole = roles.find((role) => role.name === 'Playstation');
@@ -22,7 +22,7 @@ export const setupMember = async (
   const newRole = roles.find((role) => role.name === 'New Member');
 
   const cmdrName = joinRequest.cmdr;
-  const platforms = joinRequest.platforms;
+  const platform = joinRequest.platform;
   const type = joinRequest.type;
 
   member.setNickname(`CMDR ${cmdrName}`, 'auto-setup');
@@ -41,9 +41,19 @@ export const setupMember = async (
       break;
   }
 
-  if (pcRole && platforms.pc === true) member.roles.add(pcRole, 'auto-setup');
-  if (xbRole && platforms.xbox === true) member.roles.add(xbRole, 'auto-setup');
-  if (psRole && platforms.ps === true) member.roles.add(psRole, 'auto-setup');
+  if (pcRole && xbRole && psRole) {
+    switch (platform) {
+      case Platform.PC:
+        member.roles.add(pcRole, 'auto-setup');
+        break;
+      case Platform.Xbox:
+        member.roles.add(xbRole, 'auto-setup');
+        break;
+      case Platform.PS:
+        member.roles.add(psRole, 'auto-setup');
+        break;
+    }
+  }
 
   if (newRole) member.roles.remove(newRole, 'auto-setup complete');
 
@@ -54,6 +64,6 @@ export const setupMember = async (
         `Automated setup complete for ${member}\n\n` +
           'Final manual verification needed. `/admin setup_member finalize` will remove dissociate and add Fleet Member if applicable.'
       );
-    joiningChannel.send({ embeds: [message] });
+    await joiningChannel.send({ embeds: [message] });
   }
 };

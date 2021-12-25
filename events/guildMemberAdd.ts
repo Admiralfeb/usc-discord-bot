@@ -15,9 +15,9 @@ export const event: IBotEvent = {
   needsClient: false,
   execute: async (member: GuildMember) => {
     console.log(member);
-    const joiningChannel = member.guild.channels.cache.get(
+    const joiningChannel = (await member.guild.channels.fetch(
       '708038933132476537'
-    ) as TextChannel;
+    )) as TextChannel;
     const joinRequest = await getJoinRequest(member.user.tag);
     const roles = member.guild.roles.cache;
     const disassociateRole = roles.find(
