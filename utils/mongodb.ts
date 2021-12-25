@@ -46,7 +46,7 @@ export const getJoinRequest = async (
   try {
     await client.connect();
     const database = client.db('usc');
-    const collection = database.collection('joiners');
+    const collection = database.collection('joinRequests');
 
     const cursor = collection.find<JoinRequest>({}).sort({ discord: 1 });
     const requests = await cursor.toArray();
