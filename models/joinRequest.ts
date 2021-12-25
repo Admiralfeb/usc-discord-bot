@@ -6,7 +6,7 @@ export interface JoinRequest {
 }
 
 export enum Platform {
-  PC,
-  Xbox,
-  PS,
+  PC = '0',
+  Xbox = '1',
+  PS = '2',
 }
